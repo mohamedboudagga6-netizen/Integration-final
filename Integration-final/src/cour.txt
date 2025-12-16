@@ -1,0 +1,65 @@
+COURS:
+ID: 5
+NOM: pilate
+TYPE: Bien être/Yoga
+NIVEAU: Débutant
+ENTRAINEUR: Amira
+DATE: 04/12/2025
+DUREE: 45
+CAPACITE: 5
+PRIX: 100.00
+DESCRIPTION: Un cours de Pilate est une séance de gym douce axée
+VISIBILITE: Privé
+END
+COURS:
+ID: 2
+NOM: Pilate
+TYPE: Bien être/Yoga
+NIVEAU: Débutant
+ENTRAINEUR: Amira
+DATE: 01/12/2025
+DUREE: 45
+CAPACITE: 3
+PRIX: 100.00
+DESCRIPTION: Un cours de Pilates est une seance de fitness douce
+VISIBILITE: Privé
+END
+COURS:
+ID: 6
+NOM: Box
+TYPE: Renforcement Musculaire
+NIVEAU: Avancé
+ENTRAINEUR: Mohamed
+DATE: 03/12/2025
+DUREE: 90
+CAPACITE: 4
+PRIX: 80.00
+DESCRIPTION: 
+VISIBILITE: Membres seulements
+END
+COURS:
+ID: 8
+NOM: Aerobic
+TYPE: Cardio
+NIVEAU: Intermédiaire
+ENTRAINEUR: Asma
+DATE: 01/12/2025
+DUREE: 45
+CAPACITE: 6
+PRIX: 90.00
+DESCRIPTION: 
+VISIBILITE: Public
+END
+COURS:
+ID: 10
+NOM: khljhlk
+TYPE: Arts maritaux
+NIVEAU: Intermédiaire
+ENTRAINEUR: kjhkjm
+DATE: 05/12/2025
+DUREE: 1
+CAPACITE: 1
+PRIX: 5645.00
+DESCRIPTION: 
+VISIBILITE: Privé
+END

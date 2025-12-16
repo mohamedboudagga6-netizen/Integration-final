@@ -1,0 +1,5 @@
+Nom:Ghali|Prenom:20808620|Email:elghali@gmail.com|Adresse:Tunis|CIN:123365984|Date:26/04/2004
+Nom:Ghali|Prenom:20808620|Email:elghali@gmail.com|Adresse:Tunis|CIN:123365984|Date:26/04/2004
+Nom:Ghali|Prenom:21531565|Email:rihemghali@gmail.com|Adresse:Sokra|CIN:12445987|Date:01/01/1990
+Nom:|Prenom:|Email:|Adresse:|CIN:|Date:01/01/1990
+Nom:|Prenom:|Email:|Adresse:|CIN:|Date:01/01/1990
