@@ -1,0 +1,4 @@
+600;amira;namouchi;1234;gmail;93330332;100;binzart;Femme;monthly ;Espece;Yoga;Centre Tunis;PerteDePoids;9;12;2025;1
+100;arari;mohamed;123;@dfefz;93330332;77777;tunis;Homme;monthly ;Inconnu;Musculation;Centre Tunis;Inconnu;14;12;2015;1
+580;mohamed;arari;1234;@ikbel;93330332;1000;tunis;Homme;monthly ;Inconnu;Musculation;Centre Tunis;Renforcement;14;7;2002;1
+;molka;tlili;love;;;700;selyena;Femme;monthly ;Inconnu;Zumba;;GainDePoids;14;2;2016;1
