@@ -101,8 +101,7 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_fitverse_OBJECTS = main.$(OBJEXT) support.$(OBJEXT) \
 	interface.$(OBJEXT) callbacks.$(OBJEXT) \
-	interface_equip.$(OBJEXT) evenement.$(OBJEXT) \
-	centres.$(OBJEXT) Entraineur.$(OBJEXT) centre.$(OBJEXT)
+	interface_equip.$(OBJEXT)
 fitverse_OBJECTS = $(am_fitverse_OBJECTS)
 am__DEPENDENCIES_1 =
 fitverse_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -284,11 +283,7 @@ fitverse_SOURCES = \
 	support.c support.h \
 	interface.c interface.h \
 	callbacks.c callbacks.h \
-	interface_equip.c interface_equip.h \
-	evenement.c evenement.h \
-	centres.c centres.h \
-	Entraineur.c Entraineur.h \
-	centre.c centre.h
+	interface_equip.c interface_equip.h 
 
 fitverse_LDADD = @PACKAGE_LIBS@ $(INTLLIBS)
 all: all-am
@@ -377,11 +372,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Entraineur.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/callbacks.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/centre.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/centres.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/evenement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interface_equip.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@

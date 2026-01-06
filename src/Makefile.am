@@ -12,11 +12,8 @@ fitverse_SOURCES = \
 	support.c support.h \
 	interface.c interface.h \
 	callbacks.c callbacks.h \
-	interface_equip.c interface_equip.h \
-	evenement.c evenement.h \
-	centres.c centres.h \
-	Entraineur.c Entraineur.h \
-	centre.c centre.h
+	interface_equip.c interface_equip.h 
+
 
 fitverse_LDADD = @PACKAGE_LIBS@ $(INTLLIBS)
 

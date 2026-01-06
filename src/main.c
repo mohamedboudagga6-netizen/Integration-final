@@ -80,33 +80,7 @@ int main (int argc, char *argv[])
   
   add_pixmap_directory (PACKAGE_DATA_DIR "/" PACKAGE "/pixmaps");
   
-  //OMAR 
-  FitVerse = create_FitVerse ();
-  gtk_window_set_default_size(GTK_WINDOW(FitVerse), 1000, 750);
-  gtk_widget_set_size_request(FitVerse, 400, 500);
-  gtk_widget_show (FitVerse);
-  
-  TIEC = create_TIEC();
-  gtk_window_set_default_size(GTK_WINDOW(TIEC), 980, 800);
-  gtk_widget_set_size_request(TIEC, 300, 200);
-  gtk_widget_show (TIEC);
 
-  
-
-  GtkWidget *combo = lookup_widget(FitVerse, "GCIA_comboType");
-  
-  
-  GtkEntry *entry = GTK_ENTRY(GTK_COMBO(combo)->entry);
-  g_signal_connect(G_OBJECT(entry), "changed",
-                   G_CALLBACK(on_GCIA_comboType_entry_changed),
-                   NULL);
-  
-  
-  GtkList *list = GTK_LIST(GTK_COMBO(combo)->list);
-  
-  g_signal_connect(G_OBJECT(list), "select-child",
-                   G_CALLBACK(on_GCIA_comboType_list_selected),
-                   entry);
 //SARRA
   Ajout = create_ajout ();
   gtk_widget_show (Ajout);
@@ -118,17 +92,7 @@ int main (int argc, char *argv[])
   Chercher = create_recherche();
   gtk_widget_show (Chercher);
 
-//HELA
-  window_gestion_evenement = create_window_gestion_evenement ();
-  gtk_widget_show (window_gestion_evenement);
-  windowsinscireevent = create_windowsinscireevent ();
-  gtk_widget_show (windowsinscireevent);
 
-
-// MOHAMED 
-
-  login_window = create_login_mohamed();
-  gtk_widget_show (login_window);
 
 
   gtk_main ();

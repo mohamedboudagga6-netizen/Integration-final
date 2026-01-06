@@ -108,10 +108,8 @@ create_ajout (void)
   GSList *radiobutton1_group = NULL;
   GtkWidget *eventbox89;
   GtkWidget *radiobutton2;
-  GSList *radiobutton2_group = NULL;
   GtkWidget *eventbox161;
   GtkWidget *radiobutton3;
-  GSList *radiobutton3_group = NULL;
   GtkWidget *eventbox91;
   GtkWidget *labelPrix;
   GtkWidget *entryPrix;
@@ -406,8 +404,8 @@ create_ajout (void)
   radiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, _("Plain air"));
   gtk_widget_show (radiobutton2);
   gtk_container_add (GTK_CONTAINER (eventbox89), radiobutton2);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton2), radiobutton2_group);
-  radiobutton2_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton2));
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton2), radiobutton1_group);
+  radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton2));
 
   eventbox161 = gtk_event_box_new ();
   gtk_widget_show (eventbox161);
@@ -416,8 +414,8 @@ create_ajout (void)
   radiobutton3 = gtk_radio_button_new_with_mnemonic (NULL, _("Interieur"));
   gtk_widget_show (radiobutton3);
   gtk_container_add (GTK_CONTAINER (eventbox161), radiobutton3);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton3), radiobutton3_group);
-  radiobutton3_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton3));
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton3), radiobutton1_group);
+  radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton3));
 
   eventbox91 = gtk_event_box_new ();
   gtk_widget_show (eventbox91);
@@ -1231,7 +1229,6 @@ create_modification (void)
   gtk_widget_show (vbox19);
   gtk_container_add (GTK_CONTAINER (modification), vbox19);
 
-
   hbox36 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox36);
   gtk_box_pack_start (GTK_BOX (vbox19), hbox36, TRUE, TRUE, 0);
@@ -1256,6 +1253,7 @@ create_modification (void)
   gtk_widget_show (eventbox122);
   gtk_box_pack_start (GTK_BOX (vbox51), eventbox122, FALSE, TRUE, 0);
   set_background_image(eventbox122,"12.jpg");
+
   fixed25 = gtk_fixed_new ();
   gtk_widget_show (fixed25);
   gtk_container_add (GTK_CONTAINER (eventbox122), fixed25);
@@ -1747,6 +1745,7 @@ create_recherche (void)
 {
   GtkWidget *recherche;
   GtkWidget *vbox41;
+  GtkWidget *eventbox173;
   GtkWidget *vbox42;
   GtkWidget *vbox43;
   GtkWidget *hbox88;
@@ -1820,10 +1819,15 @@ create_recherche (void)
   gtk_widget_show (vbox41);
   gtk_container_add (GTK_CONTAINER (recherche), vbox41);
 
+  eventbox173 = gtk_event_box_new ();
+  gtk_widget_show (eventbox173);
+  gtk_box_pack_start (GTK_BOX (vbox41), eventbox173, TRUE, TRUE, 0);
+  set_background_image(eventbox173,"12.jpg");
 
   vbox42 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox42);
-  gtk_box_pack_start (GTK_BOX (vbox41), vbox42, TRUE, TRUE, 0);
+  gtk_container_add (GTK_CONTAINER (eventbox173), vbox42);
+  set_background_image(eventbox173,"12.jpg");
 
   vbox43 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox43);
@@ -1852,7 +1856,7 @@ create_recherche (void)
   eventbox169 = gtk_event_box_new ();
   gtk_widget_show (eventbox169);
   gtk_box_pack_start (GTK_BOX (hbox90), eventbox169, FALSE, FALSE, 0);
-  set_background_image(eventbox169,"centre.jpg");
+
   image12 = gtk_image_new_from_icon_name ("gtk-zoom-fit", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image12);
   gtk_container_add (GTK_CONTAINER (eventbox169), image12);
@@ -1860,6 +1864,7 @@ create_recherche (void)
   eventbox171 = gtk_event_box_new ();
   gtk_widget_show (eventbox171);
   gtk_box_pack_start (GTK_BOX (hbox90), eventbox171, TRUE, TRUE, 0);
+  set_background_image(eventbox171,"12.jpg");
 
   scherlabelTitre = gtk_label_new (_("<span foreground=\"green\" font_desc=\"sans bold 12\">Chercher  le nom d'un \303\251quipement</span>\n"));
   gtk_widget_show (scherlabelTitre);
@@ -1878,6 +1883,7 @@ create_recherche (void)
   eventbox172 = gtk_event_box_new ();
   gtk_widget_show (eventbox172);
   gtk_box_pack_start (GTK_BOX (hbox89), eventbox172, TRUE, TRUE, 0);
+  
 
   label237 = gtk_label_new ("");
   gtk_widget_show (label237);
@@ -2100,6 +2106,7 @@ create_recherche (void)
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (recherche, recherche, "recherche");
   GLADE_HOOKUP_OBJECT (recherche, vbox41, "vbox41");
+  GLADE_HOOKUP_OBJECT (recherche, eventbox173, "eventbox173");
   GLADE_HOOKUP_OBJECT (recherche, vbox42, "vbox42");
   GLADE_HOOKUP_OBJECT (recherche, vbox43, "vbox43");
   GLADE_HOOKUP_OBJECT (recherche, hbox88, "hbox88");

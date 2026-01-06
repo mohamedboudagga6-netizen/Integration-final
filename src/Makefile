@@ -101,8 +101,7 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_fitverse_OBJECTS = main.$(OBJEXT) support.$(OBJEXT) \
 	interface.$(OBJEXT) callbacks.$(OBJEXT) \
-	interface_equip.$(OBJEXT) evenement.$(OBJEXT) \
-	centres.$(OBJEXT) Entraineur.$(OBJEXT) centre.$(OBJEXT)
+	interface_equip.$(OBJEXT)
 fitverse_OBJECTS = $(am_fitverse_OBJECTS)
 am__DEPENDENCIES_1 =
 fitverse_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -284,11 +283,7 @@ fitverse_SOURCES = \
 	support.c support.h \
 	interface.c interface.h \
 	callbacks.c callbacks.h \
-	interface_equip.c interface_equip.h \
-	evenement.c evenement.h \
-	centres.c centres.h \
-	Entraineur.c Entraineur.h \
-	centre.c centre.h
+	interface_equip.c interface_equip.h 
 
 fitverse_LDADD = -lgtk-x11-2.0 -lgdk-x11-2.0 -lpangocairo-1.0 -latk-1.0 -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lpangoft2-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lfontconfig -lfreetype $(INTLLIBS)
 all: all-am
@@ -377,11 +372,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/Entraineur.Po
 include ./$(DEPDIR)/callbacks.Po
-include ./$(DEPDIR)/centre.Po
-include ./$(DEPDIR)/centres.Po
-include ./$(DEPDIR)/evenement.Po
 include ./$(DEPDIR)/interface.Po
 include ./$(DEPDIR)/interface_equip.Po
 include ./$(DEPDIR)/main.Po

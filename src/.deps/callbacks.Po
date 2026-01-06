@@ -605,9 +605,7 @@ callbacks.o: callbacks.c /usr/include/stdc-predef.h ../config.h \
  /usr/include/gtk-2.0/gtk/gtkpreview.h \
  /usr/include/gtk-2.0/gtk/gtktipsquery.h callbacks.h interface.h \
  support.h /usr/include/libintl.h /usr/include/locale.h \
- /usr/include/x86_64-linux-gnu/bits/locale.h interface_equip.h centre.h \
- evenement.h Entraineur.h \
- /usr/lib/gcc/x86_64-linux-gnu/7/include/stdbool.h
+ /usr/include/x86_64-linux-gnu/bits/locale.h interface_equip.h
 
 /usr/include/stdc-predef.h:
 
@@ -1962,11 +1960,3 @@ support.h:
 /usr/include/x86_64-linux-gnu/bits/locale.h:
 
 interface_equip.h:
-
-centre.h:
-
-evenement.h:
-
-Entraineur.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/7/include/stdbool.h:
