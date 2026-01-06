@@ -17,11 +17,108 @@
 #include "Entraineur.h"
 
 
-// Equipment window callbacks
-void on_buttonEnregistrer_clicked(GtkButton *button, gpointer user_data)
-{
-    Equipement nouvel_equip;
 
+gboolean valider_texte_alphabetique(const gchar *text) {
+    if (!text || strlen(text) == 0) {
+        return FALSE;
+    }
+    
+    for (int i = 0; text[i] != '\0'; i++) {
+        if (!g_ascii_isalpha(text[i]) && text[i] != ' ' && text[i] != '-') {
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+// Validate that a string contains only alphanumeric characters (for IDs)
+gboolean id_valider(const gchar *text) {
+    if (!text || strlen(text) == 0) {
+        return FALSE;
+    }
+    
+    for (int i = 0; text[i] != '\0'; i++) {
+        if (!g_ascii_isalnum(text[i]) && text[i] != '_' && text[i] != '-') {
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+// Validate numeric input (for price)
+gboolean valider_nombre_decimal(const gchar *text) {
+    if (!text || strlen(text) == 0) {
+        return FALSE;
+    }
+    
+    gboolean point_trouve = FALSE;
+    for (int i = 0; text[i] != '\0'; i++) {
+        if (text[i] == '.' || text[i] == ',') {
+            if (point_trouve) return FALSE; // Only one decimal point allowed
+            point_trouve = TRUE;
+        } else if (!g_ascii_isdigit(text[i])) {
+            return FALSE;
+        }
+    }
+    
+    // Check if value is positive
+    double value = atof(text);
+    return value > 0;
+}
+
+// Validate integer input (for quantity)
+gboolean valider_nombre_entier(const gchar *text) {
+    if (!text || strlen(text) == 0) {
+        return FALSE;
+    }
+    
+    for (int i = 0; text[i] != '\0'; i++) {
+        if (!g_ascii_isdigit(text[i])) {
+            return FALSE;
+        }
+    }
+    
+    int value = atoi(text);
+    return value > 0;
+}
+
+// Validate that at least one radio button is selected
+gboolean valider_radio_group(GtkWidget *radio1, GtkWidget *radio2, GtkWidget *radio3) {
+    return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio1)) ||
+           gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio2)) ||
+           gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio3));
+}
+
+// Validate combobox selection
+gboolean valider_combobox(GtkWidget *combo) {
+    gchar *text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combo));
+    if (!text || strlen(text) == 0) {
+        if (text) g_free(text);
+        return FALSE;
+    }
+    g_free(text);
+    return TRUE;
+}
+
+// Show error dialog
+void afficher_erreur(GtkWindow *parent, const gchar *message) {
+    GtkWidget *dialog = gtk_message_dialog_new(parent,
+                                                GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                GTK_MESSAGE_ERROR,
+                                                GTK_BUTTONS_OK,
+                                                "%s", message);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+}
+
+
+
+
+
+
+void on_buttonEnregistrer_clicked(GtkButton *button, gpointer user_data) {
+    Equipement nouvel_equip;
+    
     // Get the top-level window
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(button));
     
@@ -39,94 +136,160 @@ void on_buttonEnregistrer_clicked(GtkButton *button, gpointer user_data)
     GtkWidget *radioInterieur = lookup_widget(window, "radiobutton3");
     GtkWidget *calendar = lookup_widget(window, "calendarDateAchat");
 
-    if (!entryNom || !entryMarque || !entryID ||  !comboCentre || 
-        !entryPrix || !entryQuantite || !checkEtat || !comboType || !calendar) {
-        printf("Erreur: Un ou plusieurs widgets non trouvés\n");
+    if (!entryNom || !entryMarque || !entryID || !comboCentre || !entryPrix || 
+        !entryQuantite || !checkEtat || !comboType || !calendar) {
+        afficher_erreur(GTK_WINDOW(window), "Erreur: Un ou plusieurs widgets non trouvés");
         return;
     }
 
+    // Get values
     const gchar *temp_nom = gtk_entry_get_text(GTK_ENTRY(entryNom));
     const gchar *temp_marque = gtk_entry_get_text(GTK_ENTRY(entryMarque));
     const gchar *temp_id = gtk_entry_get_text(GTK_ENTRY(entryID));
     const gchar *temp_prix = gtk_entry_get_text(GTK_ENTRY(entryPrix));
     const gchar *temp_quantite = gtk_entry_get_text(GTK_ENTRY(entryQuantite));
-
+    
     GtkWidget *entry_centre = gtk_bin_get_child(GTK_BIN(comboCentre));
     const gchar *temp_centre = gtk_entry_get_text(GTK_ENTRY(entry_centre));
 
+    // ==================== VALIDATION ====================
+    
+    // 1. Validate Nom (required, alphabetic only)
+    if (!valider_texte_alphabetique(temp_nom)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: Le nom est obligatoire et doit contenir uniquement des lettres et des espaces.");
+        gtk_widget_grab_focus(entryNom);
+        return;
+    }
+
+    // 2. Validate Marque (required, alphabetic only)
+    if (!valider_texte_alphabetique(temp_marque)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: La marque est obligatoire et doit contenir uniquement des lettres et des espaces.");
+        gtk_widget_grab_focus(entryMarque);
+        return;
+    }
+
+    // 3. Validate ID (required, alphanumeric)
+    if (!id_valider(temp_id)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: L'ID est obligatoire et doit contenir uniquement des lettres, chiffres, tirets ou underscores.");
+        gtk_widget_grab_focus(entryID);
+        return;
+    }
+
+    // 4. Validate Centre Sportif (required)
+    if (!temp_centre || strlen(temp_centre) == 0) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: Le centre sportif est obligatoire. Veuillez sélectionner un centre.");
+        gtk_widget_grab_focus(comboCentre);
+        return;
+    }
+
+    // 5. Validate Prix (required, positive decimal number)
+    if (!valider_nombre_decimal(temp_prix)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: Le prix est obligatoire et doit être un nombre positif (ex: 150.00 ou 150).");
+        gtk_widget_grab_focus(entryPrix);
+        return;
+    }
+
+    // 6. Validate Quantité (required, positive integer)
+    if (!valider_nombre_entier(temp_quantite)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: La quantité est obligatoire et doit être un nombre entier positif.");
+        gtk_widget_grab_focus(entryQuantite);
+        return;
+    }
+
+    // 7. Validate Type (required from combobox)
+    if (!valider_combobox(comboType)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: Le type est obligatoire. Veuillez sélectionner un type.");
+        gtk_widget_grab_focus(comboType);
+        return;
+    }
+
+    // 8. Validate Utilisation (at least one radio button must be selected)
+    if (!valider_radio_group(radioAquatique, radioPlainAir, radioInterieur)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: L'utilisation est obligatoire. Veuillez sélectionner une option (Aquatique, Plain air ou Intérieur).");
+        return;
+    }
+
+    // ==================== ALL VALIDATIONS PASSED - SAVE DATA ====================
+
+    // Get état
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkEtat))) {
         strcpy(nouvel_equip.etat, "nouveau");
     } else {
         strcpy(nouvel_equip.etat, "utilisation");
     }
 
-    gchar *type_text = NULL;
-    GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(comboType));
-    GtkTreeIter iter;
-    if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(comboType), &iter)) {
-        gtk_tree_model_get(model, &iter, 0, &type_text, -1);
-    }
-
+    // Get type
+    gchar *type_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(comboType));
+    
+    // Get utilisation
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radioAquatique))) {
         strcpy(nouvel_equip.utilisation, "Aquatique");
     } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radioPlainAir))) {
         strcpy(nouvel_equip.utilisation, "Plain air");
     } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radioInterieur))) {
         strcpy(nouvel_equip.utilisation, "Interieur");
-    } else {
-        strcpy(nouvel_equip.utilisation, "Non");
     }
 
+    // Get date
     guint year, month, day;
     gtk_calendar_get_date(GTK_CALENDAR(calendar), &year, &month, &day);
     sprintf(nouvel_equip.date_achat, "%04d-%02d-%02d", year, month+1, day);
 
-    strcpy(nouvel_equip.nom, temp_nom ? temp_nom : "");
-    strcpy(nouvel_equip.marque, temp_marque ? temp_marque : "");
-    strcpy(nouvel_equip.id, temp_id ? temp_id : "");
-    strcpy(nouvel_equip.id_centre, temp_centre ? temp_centre : "");
-    nouvel_equip.prix = temp_prix ? atof(temp_prix) : 0.0;
-    nouvel_equip.quantite = temp_quantite ? atoi(temp_quantite) : 0;
-    
+    // Copy validated data
+    strcpy(nouvel_equip.nom, temp_nom);
+    strcpy(nouvel_equip.marque, temp_marque);
+    strcpy(nouvel_equip.id, temp_id);
+    strcpy(nouvel_equip.id_centre, temp_centre);
+    nouvel_equip.prix = atof(temp_prix);
+    nouvel_equip.quantite = atoi(temp_quantite);
+
     if (type_text) {
         strcpy(nouvel_equip.type, type_text);
         g_free(type_text);
     } else {
         strcpy(nouvel_equip.type, "");
     }
-    
+
     // Initialize reservation array
     for (int i = 0; i < 16; i++) {
         strcpy(nouvel_equip.tab_reservation[i].date, "0");
         nouvel_equip.tab_reservation[i].heure_debut = 0;
         nouvel_equip.tab_reservation[i].duree = 0;
     }
-    
-    printf("Nom: %s\n", nouvel_equip.nom);
-    printf("Marque: %s\n", nouvel_equip.marque);
-    printf("ID: %s\n", nouvel_equip.id);
-    printf("Quantité: %d\n", nouvel_equip.quantite);
-    printf("Centre: %s\n", nouvel_equip.id_centre);
-    printf("Prix: %.2f\n", nouvel_equip.prix);
-    printf("État: %s\n", nouvel_equip.etat);
-    printf("Type: %s\n", nouvel_equip.type);
-    printf("Utilisation: %s\n", nouvel_equip.utilisation);
-    printf("Date achat: %s\n", nouvel_equip.date_achat);
-    
-    if (ajouter_equip( "equipements.txt", &nouvel_equip) == 1) {
-        printf("Équipement enregistré avec succès!\n");
-        
-        GtkWidget *dialog = gtk_message_dialog_new(NULL,
-            GTK_DIALOG_DESTROY_WITH_PARENT,
-            GTK_MESSAGE_INFO,
-            GTK_BUTTONS_OK,
-            "Équipement enregistré avec succès!");
+
+    // Save to file
+    if (ajouter_equip("equipements.txt", &nouvel_equip) == 1) {
+        GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(window),
+                                                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                    GTK_MESSAGE_INFO,
+                                                    GTK_BUTTONS_OK,
+                                                    "Équipement enregistré avec succès!\n\n"
+                                                    "Nom: %s\nMarque: %s\nID: %s",
+                                                    nouvel_equip.nom, nouvel_equip.marque, nouvel_equip.id);
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
+        
+        // Clear form after successful save
+        gtk_entry_set_text(GTK_ENTRY(entryNom), "");
+        gtk_entry_set_text(GTK_ENTRY(entryMarque), "");
+        gtk_entry_set_text(GTK_ENTRY(entryID), "");
+        gtk_entry_set_text(GTK_ENTRY(entryPrix), "");
+        gtk_entry_set_text(GTK_ENTRY(entryQuantite), "");
+        gtk_entry_set_text(GTK_ENTRY(entry_centre), "");
+        gtk_combo_box_set_active(GTK_COMBO_BOX(comboType), -1);
     } else {
-        printf("Erreur lors de l'enregistrement\n");
+        afficher_erreur(GTK_WINDOW(window), "Erreur lors de l'enregistrement de l'équipement.");
     }
 }
+
 
 void on_buttonQuitter_clicked(GtkButton *button, gpointer user_data)
 {
@@ -150,12 +313,10 @@ void on_sreserve_buttonPrecedent_clicked(GtkButton *button, gpointer user_data)
     }
 }
 
-void on_sreserve_buttonEnregistrer_clicked(GtkButton *button, gpointer user_data)
-{
-    // Get the reservation window
+void on_sreserve_buttonEnregistrer_clicked(GtkButton *button, gpointer user_data) {
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(button));
     
-    // Get all reservation widgets
+    // Get all widgets
     GtkWidget *entryNom = lookup_widget(window, "sreserveentryNom");
     GtkWidget *entryMarque = lookup_widget(window, "sreserveentryMarque");
     GtkWidget *entryQuantite = lookup_widget(window, "sreservespinbuttonQuantite");
@@ -167,30 +328,62 @@ void on_sreserve_buttonEnregistrer_clicked(GtkButton *button, gpointer user_data
     GtkWidget *checkDuree3 = lookup_widget(window, "sreservecheckbuttonDuree3");
 
     if (!entryNom || !entryMarque || !entryQuantite || !calendar || 
-        !entryHeureDebut || !comboCentre || !checkDuree1 || !checkDuree2 || !checkDuree3 ) {
-        printf("Erreur: Un ou plusieurs widgets de réservation non trouvés\n");
+        !entryHeureDebut || !comboCentre || !checkDuree1 || !checkDuree2 || !checkDuree3) {
+        afficher_erreur(GTK_WINDOW(window), "Erreur: Un ou plusieurs widgets non trouvés");
         return;
     }
 
-    // Get equipment information
+    // Get values
     const gchar *nom = gtk_entry_get_text(GTK_ENTRY(entryNom));
     const gchar *marque = gtk_entry_get_text(GTK_ENTRY(entryMarque));
-    
-    // Get quantity
-    const gchar *temp_quantite = gtk_entry_get_text(GTK_ENTRY(entryQuantite));
-    int quantite = temp_quantite ? atoi(temp_quantite) : 0;
-    
-    // Get date from calendar
-    guint year, month, day;
-    gtk_calendar_get_date(GTK_CALENDAR(calendar), &year, &month, &day);
-    char date_str[12];
-    sprintf(date_str, "%04d-%02d-%02d", year, month + 1, day);
-    
-    // Get start time
     const gchar *heure_debut_str = gtk_entry_get_text(GTK_ENTRY(entryHeureDebut));
-    int heure_debut = atoi(heure_debut_str);
     
-    // Get duration
+    GtkWidget *centre_entry = gtk_bin_get_child(GTK_BIN(comboCentre));
+    const gchar *centre_text = gtk_entry_get_text(GTK_ENTRY(centre_entry));
+
+    // ==================== VALIDATION ====================
+    
+    // 1. Validate Nom (required, alphabetic)
+    if (!valider_texte_alphabetique(nom)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: Le nom est obligatoire et doit contenir uniquement des lettres.");
+        gtk_widget_grab_focus(entryNom);
+        return;
+    }
+
+    // 2. Validate Marque (required, alphabetic)
+    if (!valider_texte_alphabetique(marque)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: La marque est obligatoire et doit contenir uniquement des lettres.");
+        gtk_widget_grab_focus(entryMarque);
+        return;
+    }
+
+    // 3. Validate Centre (required)
+    if (!centre_text || strlen(centre_text) == 0) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: Le centre sportif est obligatoire.");
+        gtk_widget_grab_focus(comboCentre);
+        return;
+    }
+
+    // 4. Validate Heure début (required, must be between 0-23)
+    if (!valider_nombre_entier(heure_debut_str)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: L'heure de début est obligatoire et doit être un nombre entier.");
+        gtk_widget_grab_focus(entryHeureDebut);
+        return;
+    }
+    
+    int heure_debut = atoi(heure_debut_str);
+    if (heure_debut < 0 || heure_debut > 23) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: L'heure de début doit être entre 0 et 23.");
+        gtk_widget_grab_focus(entryHeureDebut);
+        return;
+    }
+
+    // 5. Validate Durée (at least one checkbox must be selected)
     int duree = 0;
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkDuree1))) {
         duree = 60;
@@ -200,77 +393,67 @@ void on_sreserve_buttonEnregistrer_clicked(GtkButton *button, gpointer user_data
         duree = 120;
     }
     
-    // Get sports center
-    GtkWidget *centre_entry = gtk_bin_get_child(GTK_BIN(comboCentre));
-    const gchar *centre_text = gtk_entry_get_text(GTK_ENTRY(centre_entry));
-
-    // Validate inputs
-    if (strlen(nom) == 0 || strlen(marque) == 0 || duree == 0 || strlen(heure_debut_str) == 0) {
-        GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(window),
-            GTK_DIALOG_DESTROY_WITH_PARENT,
-            GTK_MESSAGE_ERROR,
-            GTK_BUTTONS_OK,
-            "Veuillez remplir tous les champs obligatoires: nom, marque, heure début et durée.");
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
+    if (duree == 0) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: La durée est obligatoire. Veuillez sélectionner 60, 90 ou 120 minutes.");
         return;
     }
 
-    // Create reservation object
+    // ==================== ALL VALIDATIONS PASSED - SAVE RESERVATION ====================
+
+    // Get date
+    guint year, month, day;
+    gtk_calendar_get_date(GTK_CALENDAR(calendar), &year, &month, &day);
+    char date_str[12];
+    sprintf(date_str, "%04d-%02d-%02d", year, month + 1, day);
+
+    // Get quantity
+    const gchar *temp_quantite = gtk_entry_get_text(GTK_ENTRY(entryQuantite));
+    int quantite = temp_quantite ? atoi(temp_quantite) : 0;
+
+    // Create reservation
     Reservation rv;
     strcpy(rv.date, date_str);
     rv.heure_debut = heure_debut;
     rv.duree = duree;
 
-    // Call reserver function
-    int result = reserver_equip( "equipements.txt", (char*)nom, &rv);
+    // Save reservation
+    int result = reserver_equip("equipements.txt", (char*)nom, &rv);
 
     if (result) {
-        // Success message
         char message[512];
         snprintf(message, sizeof(message),
-            "Réservation enregistrée avec succès!\n\n"
-            "Équipement: %s %s\n"
-            "Quantité: %d\n"
-            "Date: %s à %sh\n"
-            "Durée: %d minutes\n"
-            "Centre: %s",
-            nom, marque, 
-            quantite,
-            date_str, heure_debut_str, duree, 
-            centre_text ? centre_text : "Non spécifié");
+                "Réservation enregistrée avec succès!\n\n"
+                "Équipement: %s %s\n"
+                "Quantité: %d\n"
+                "Date: %s à %dh\n"
+                "Durée: %d minutes\n"
+                "Centre: %s",
+                nom, marque, quantite, date_str, heure_debut, duree, centre_text);
         
         GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(window),
-            GTK_DIALOG_DESTROY_WITH_PARENT,
-            GTK_MESSAGE_INFO,
-            GTK_BUTTONS_OK,
-            "%s", message);
-        
+                                                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                    GTK_MESSAGE_INFO,
+                                                    GTK_BUTTONS_OK,
+                                                    "%s", message);
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
 
-        // Clear the form after successful reservation
+        // Clear form
         gtk_entry_set_text(GTK_ENTRY(entryNom), "");
         gtk_entry_set_text(GTK_ENTRY(entryMarque), "");
         gtk_entry_set_text(GTK_ENTRY(entryQuantite), "");
         gtk_entry_set_text(GTK_ENTRY(entryHeureDebut), "");
         gtk_entry_set_text(GTK_ENTRY(centre_entry), "");
-        
-        // Uncheck all duration buttons
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkDuree1), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkDuree2), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkDuree3), FALSE);
     } else {
-        // Error message
-        GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(window),
-            GTK_DIALOG_DESTROY_WITH_PARENT,
-            GTK_MESSAGE_ERROR,
-            GTK_BUTTONS_OK,
+        afficher_erreur(GTK_WINDOW(window), 
             "Erreur: Équipement non trouvé ou aucun créneau disponible (maximum 16 réservations).");
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
     }
 }
+
 
 void on_sreserve_buttonQuitter_clicked(GtkButton *button, gpointer user_data)
 {
@@ -778,13 +961,10 @@ void on_scherbuttonSupprimer_clicked(GtkButton *button, gpointer user_data)
     g_free(id);
 }
 
-void on_smodifbuttonEnregistrer_clicked(GtkButton *button, gpointer user_data)
-{
+void on_smodifbuttonEnregistrer_clicked(GtkButton *button, gpointer user_data) {
     Equipement modif_equip;
-    
-    // Get the modification window
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(button));
-    
+
     // Get all widgets
     GtkWidget *entryNom = lookup_widget(window, "smodifentryNom");
     GtkWidget *entryMarque = lookup_widget(window, "smodifentryMarque");
@@ -798,14 +978,14 @@ void on_smodifbuttonEnregistrer_clicked(GtkButton *button, gpointer user_data)
     GtkWidget *radioPlainAir = lookup_widget(window, "smodifradiobuttonUtilisation2");
     GtkWidget *radioInterieur = lookup_widget(window, "smodifradiobuttonUtilisation3");
     GtkWidget *entryPrix = lookup_widget(window, "smodifentryPrix");
-    
+
     if (!entryNom || !entryMarque || !entryId || !spinQuantite || !comboCentre || 
         !calendar || !checkEtat || !comboType || !entryPrix) {
-        printf("Erreur: Un ou plusieurs widgets non trouvés\n");
+        afficher_erreur(GTK_WINDOW(window), "Erreur: Un ou plusieurs widgets non trouvés");
         return;
     }
-    
-    // Get values from widgets
+
+    // Get values
     const gchar *nom = gtk_entry_get_text(GTK_ENTRY(entryNom));
     const gchar *marque = gtk_entry_get_text(GTK_ENTRY(entryMarque));
     const gchar *id = gtk_entry_get_text(GTK_ENTRY(entryId));
@@ -814,17 +994,83 @@ void on_smodifbuttonEnregistrer_clicked(GtkButton *button, gpointer user_data)
     
     GtkWidget *entry_centre = gtk_bin_get_child(GTK_BIN(comboCentre));
     const gchar *centre = gtk_entry_get_text(GTK_ENTRY(entry_centre));
+
+    // ==================== VALIDATION ====================
     
+    // Validate Nom
+    if (!valider_texte_alphabetique(nom)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: Le nom est obligatoire et doit contenir uniquement des lettres.");
+        gtk_widget_grab_focus(entryNom);
+        return;
+    }
+
+    // Validate Marque
+    if (!valider_texte_alphabetique(marque)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: La marque est obligatoire et doit contenir uniquement des lettres.");
+        gtk_widget_grab_focus(entryMarque);
+        return;
+    }
+
+    // Validate ID
+    if (!id_valider(id)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: L'ID est obligatoire et doit contenir uniquement des caractères alphanumériques.");
+        return;
+    }
+
+    // Validate Prix
+    if (!valider_nombre_decimal(prix_str)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: Le prix est obligatoire et doit être un nombre positif.");
+        gtk_widget_grab_focus(entryPrix);
+        return;
+    }
+
+    // Validate Centre
+    if (!centre || strlen(centre) == 0) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: Le centre sportif est obligatoire.");
+        gtk_widget_grab_focus(comboCentre);
+        return;
+    }
+
+    // Validate Type
+    if (!valider_combobox(comboType)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: Le type est obligatoire.");
+        gtk_widget_grab_focus(comboType);
+        return;
+    }
+
+    // Validate Utilisation
+    if (!valider_radio_group(radioAquatique, radioPlainAir, radioInterieur)) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: L'utilisation est obligatoire.");
+        return;
+    }
+
+    // Validate Quantité
+    if (quantite <= 0) {
+        afficher_erreur(GTK_WINDOW(window), 
+            "Erreur: La quantité doit être supérieure à 0.");
+        gtk_widget_grab_focus(spinQuantite);
+        return;
+    }
+
+    // ==================== ALL VALIDATIONS PASSED ====================
+
     // Get date
     guint year, month, day;
     gtk_calendar_get_date(GTK_CALENDAR(calendar), &year, &month, &day);
-    
+
     // Get etat
     gboolean etat_nouveau = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkEtat));
-    
+
     // Get type
     gchar *type_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(comboType));
-    
+
     // Get utilisation
     const gchar *utilisation = "Non";
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radioAquatique))) {
@@ -834,65 +1080,38 @@ void on_smodifbuttonEnregistrer_clicked(GtkButton *button, gpointer user_data)
     } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radioInterieur))) {
         utilisation = "Interieur";
     }
-    
-    // Fill the Equipement structure
-    strcpy(modif_equip.nom, nom ? nom : "");
-    strcpy(modif_equip.marque, marque ? marque : "");
-    strcpy(modif_equip.id, id ? id : "");
+
+    // Fill structure
+    strcpy(modif_equip.nom, nom);
+    strcpy(modif_equip.marque, marque);
+    strcpy(modif_equip.id, id);
     modif_equip.quantite = quantite;
-    strcpy(modif_equip.id_centre, centre ? centre : "");
+    strcpy(modif_equip.id_centre, centre);
     sprintf(modif_equip.date_achat, "%04d-%02d-%02d", year, month + 1, day);
     strcpy(modif_equip.etat, etat_nouveau ? "nouveau" : "utilisation");
     strcpy(modif_equip.utilisation, utilisation);
     strcpy(modif_equip.type, type_text ? type_text : "");
-    modif_equip.prix = prix_str ? atof(prix_str) : 0.0;
-    
+    modif_equip.prix = atof(prix_str);
+
     if (type_text) g_free(type_text);
-    
-    // Validate inputs
-    if (strlen(modif_equip.nom) == 0 || strlen(modif_equip.id) == 0) {
-        GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(window),
-            GTK_DIALOG_DESTROY_WITH_PARENT,
-            GTK_MESSAGE_ERROR,
-            GTK_BUTTONS_OK,
-            "Veuillez remplir tous les champs obligatoires.");
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
-        return;
-    }
-    
-    // Call modifier function
-    int result = modifier_equip( "equipements.txt", modif_equip.id, &modif_equip);
-    
+
+    // Save modifications
+    int result = modifier_equip("equipements.txt", modif_equip.id, &modif_equip);
+
     if (result) {
-        // Success
         GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(window),
-            GTK_DIALOG_DESTROY_WITH_PARENT,
-            GTK_MESSAGE_INFO,
-            GTK_BUTTONS_OK,
-            "Équipement modifié avec succès!\n\n%s %s (ID: %s)",
-            modif_equip.nom, modif_equip.marque, modif_equip.id);
+                                                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                    GTK_MESSAGE_INFO,
+                                                    GTK_BUTTONS_OK,
+                                                    "Équipement modifié avec succès!\n\n%s %s (ID: %s)",
+                                                    modif_equip.nom, modif_equip.marque, modif_equip.id);
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
-        
-        // Close the modification window
         gtk_widget_destroy(window);
-        
-        printf("Équipement modifié: %s %s (ID: %s)\n", 
-               modif_equip.nom, modif_equip.marque, modif_equip.id);
     } else {
-        // Error
-        GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(window),
-            GTK_DIALOG_DESTROY_WITH_PARENT,
-            GTK_MESSAGE_ERROR,
-            GTK_BUTTONS_OK,
-            "Erreur: Impossible de modifier l'équipement.\nID non trouvé: %s",
-            modif_equip.id);
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
+        afficher_erreur(GTK_WINDOW(window), "Erreur: Impossible de modifier l'équipement.");
     }
 }
-
 void on_smodifbuttonPrecedent_clicked(GtkButton *button, gpointer user_data)
 {
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(button));

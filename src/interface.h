@@ -5,7 +5,6 @@
 GtkWidget* create_ajout (void);
 GtkWidget* create_reservation (void);
 GtkWidget* create_modification (void);
-GtkWidget* create_swarn (void);
 GtkWidget* create_recherche (void);
 GtkWidget* create_FitVerse (void);
 GtkWidget* create_TIEC (void);
@@ -21,3 +20,4 @@ GtkWidget* create_inscrire____un_cours_sportif_mohamed (void);
 GtkWidget* create_login_entraineur_mohamed (void);
 GtkWidget* create_login_mohamed (void);
 GtkWidget* create_login_admin_mohamed (void);
+GtkWidget* create_window1 (void);

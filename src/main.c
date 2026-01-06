@@ -110,6 +110,7 @@ int main (int argc, char *argv[])
 //SARRA
   Ajout = create_ajout ();
   gtk_widget_show (Ajout);
+
   
   Reservation = create_reservation ();
   gtk_widget_show (Reservation);
